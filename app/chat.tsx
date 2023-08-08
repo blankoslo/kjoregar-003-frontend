@@ -2,44 +2,45 @@
 
 import { SyntheticEvent, useEffect, useRef, useState } from 'react';
 import styles from './chat.module.css'
+import { Avatar } from './avatar';
 
 const Block = ({ message }: { message: { key: string, human: string, robot: string } }) => {
     const ref = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setTimeout(() => ref.current?.scrollIntoView({ behavior: 'smooth' }), 350);
-    }, []);
+    }, [message]);
 
     return (
-      <div ref={ref} className={styles.block}>
-        <div className={styles.human}>
-          {message.human.split("\n").map((h) => (
-            <p key={h}>{h}</p>
-          ))}
-        </div>
-        <div className={styles.robot}>
-            <div className={styles.text}>
-                {message.robot.split("\n").map((r) => (
-                    <p key={r}>{r}</p>
-                ))}
+        <div ref={ref} className={styles.block}>
+            <div className={styles.human}>
+                {message.human.split("\n").map((h) => (
+                    h && <p key={h}>{h}</p>
+                )).filter(Boolean)}
             </div>
-            <div className={styles.image}>
-                {!message.image && "🧠 🎨..."}
-                {message.image && (
-                    <img
-                        src={`data:image/png;base64, ${message.image}`}
-                        alt="Image from SD"
-                    />
-                )}
+            <div className={styles.robot}>
+                <div className={styles.text}>
+                    {message.robot.split("\n").map((r) => (
+                        r && <p key={r}>{r}</p>
+                    )).filter(Boolean)}
+                </div>
+                <div className={styles.image}>
+                    {!message.image && "🧠 🎨..."}
+                    {message.image && (
+                        <img
+                            src={`data:image/png;base64, ${message.image}`}
+                            alt="Image from SD"
+                        />
+                    )}
+                </div>
             </div>
         </div>
-      </div>
     );
 }
 
 export const Chat = () => {
     const formRef = useRef<HTMLFormElement | null>(null);
-    const [topic, setTopic] = useState<string>('gpt-oasst-sft-1');
+    const [topic, setTopic] = useState<string>('gpt-oasst-llama2');
     const [topicResources, setTopicResources] = useState<string>(`${topic}-resources`);
     const [status, setStatus] = useState('disconnected');
 
@@ -48,6 +49,8 @@ export const Chat = () => {
 
     const [text, setText] = useState('');
     const [messages, setMessages] = useState([]);
+
+    const [texture, setTexture] = useState<string| undefined>()
 
     useEffect(() => {
         uuid.current = crypto.randomUUID();
@@ -134,6 +137,8 @@ export const Chat = () => {
 
                             setMessages(updatedMessages);
                         }
+                    } else if (payload.type === "ChatAvatarRobotResponse") {
+                        setTexture(payload["robot"])
                     }
                 } catch (err) {
                     console.warn(err);
@@ -181,7 +186,21 @@ export const Chat = () => {
         }
     }
 
-    return <div>
+    const requestTexture= (key: string) => {
+        const payload = JSON.stringify({
+            cmd: 'pub',
+            topic: 'sd-2-1',
+            replyTopic: uuid.current,
+            type: 'ChatAvatarCreate',
+            id: key,
+        });
+
+        if (ws.current) {
+            ws.current.send(payload);
+        }
+    }
+
+    return <><div>
         <div className={styles.buffer}>
             {messages.map((l) => {
                 return <Block key={l.key} message={l} />;
@@ -202,6 +221,8 @@ export const Chat = () => {
                 const isStream = true;
 
                 publishMessage(key, previous, text, isStream);
+                // request a new texture
+                requestTexture(key);
                 setMessages([
                   ...messages,
                   { key, human: text, robot: isStream ? "" : "🧠" },
@@ -221,4 +242,5 @@ export const Chat = () => {
             <footer className={styles.credits}>BlankGPT UI running {topic} [{status}]. Kjøregår #003</footer>
         </form>
     </div>
+        <Avatar texture={texture} /></>
 };

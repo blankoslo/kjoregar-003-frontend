@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@lume/three-projected-material": "^0.2.4",
     "@types/node": "18.15.0",
     "@types/react": "18.0.28",
     "@types/react-dom": "18.0.11",
@@ -17,7 +18,11 @@
     "next": "13.2.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "three": "^0.155.0",
     "typescript": "4.9.5",
     "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.155.0"
   }
 }

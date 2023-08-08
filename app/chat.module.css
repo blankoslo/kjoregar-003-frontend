@@ -1,6 +1,5 @@
-/* chat buffer */
 .buffer {
-  height: calc(100vh - 100px);
+  height: calc(100vh - 250px);
   overflow-y: auto;
 }
 
@@ -8,9 +7,11 @@
   font-weight: 700;
   font-family: var(--font-mono);
 }
+
 .block {
   animation: enter 0.3s forwards;
 }
+
 .robot {
   padding: 12px;
   background: var(--light);
@@ -19,15 +20,22 @@
   justify-content: space-between;
   align-content: center;
 }
+
 .human {
   padding: 12px;
   background: var(--dark);
   color: var(--light);
 }
+
+.robot p,
+.human p {
+  margin-top: 12px;
+}
+
 .image {
   margin-left: 12px;
-  height: 150px;
-  width: 150px;
+  height: 250px;
+  width: 250px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,6 +46,7 @@
   0% {
     transform: translateY(100vh);
   }
+
   100% {
     transform: translateX(0);
   }
@@ -54,7 +63,7 @@
   left: 0;
   bottom: 0;
   width: 100%;
-  height: 100px;
+  height: 250px;
   background: rgb(0, 0, 0, 0.5)
 }
 
@@ -94,4 +103,3 @@
   line-height: 16px;
   margin-top: 4px;
 }
-
